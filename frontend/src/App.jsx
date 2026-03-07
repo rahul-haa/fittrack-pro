@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useState } from 'react';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { BadgeProvider } from './context/BadgeContext';
@@ -57,31 +58,35 @@ function PublicRoute({ children }) {
 }
 
 export default function App() {
+    const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+
     return (
-        <BrowserRouter>
-            <ThemeProvider>
-                <AuthProvider>
-                    <BadgeProvider>
-                        <BadgeUnlock />
-                        <Routes>
-                            <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-                            <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
-                            <Route element={<ProtectedLayout />}>
-                                <Route path="/dashboard" element={<Dashboard />} />
-                                <Route path="/water" element={<WaterTracker />} />
-                                <Route path="/profile" element={<Profile />} />
-                                <Route path="/goals" element={<Goals />} />
-                                <Route path="/workouts" element={<Workouts />} />
-                                <Route path="/nutrition" element={<Nutrition />} />
-                                <Route path="/social" element={<Social />} />
-                                <Route path="/settings" element={<Settings />} />
-                                <Route path="/ai-coach" element={<AICoach />} />
-                            </Route>
-                            <Route path="*" element={<Navigate to="/login" />} />
-                        </Routes>
-                    </BadgeProvider>
-                </AuthProvider>
-            </ThemeProvider>
-        </BrowserRouter>
+        <GoogleOAuthProvider clientId={googleClientId}>
+            <BrowserRouter>
+                <ThemeProvider>
+                    <AuthProvider>
+                        <BadgeProvider>
+                            <BadgeUnlock />
+                            <Routes>
+                                <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+                                <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+                                <Route element={<ProtectedLayout />}>
+                                    <Route path="/dashboard" element={<Dashboard />} />
+                                    <Route path="/water" element={<WaterTracker />} />
+                                    <Route path="/profile" element={<Profile />} />
+                                    <Route path="/goals" element={<Goals />} />
+                                    <Route path="/workouts" element={<Workouts />} />
+                                    <Route path="/nutrition" element={<Nutrition />} />
+                                    <Route path="/social" element={<Social />} />
+                                    <Route path="/settings" element={<Settings />} />
+                                    <Route path="/ai-coach" element={<AICoach />} />
+                                </Route>
+                                <Route path="*" element={<Navigate to="/login" />} />
+                            </Routes>
+                        </BadgeProvider>
+                    </AuthProvider>
+                </ThemeProvider>
+            </BrowserRouter>
+        </GoogleOAuthProvider>
     );
 }

@@ -1,17 +1,18 @@
 /**
- * Login Page — Email/password login with OAuth buttons
+ * Login Page — Email/password login with Google OAuth
  */
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { GoogleLogin } from '@react-oauth/google';
 
 export default function Login() {
     const [email, setEmail] = useState('demo@fittrack.com');
     const [password, setPassword] = useState('demo1234');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { login } = useAuth();
+    const { login, googleLogin } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -23,6 +24,19 @@ export default function Login() {
             navigate('/dashboard');
         } catch (err) {
             setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleGoogleSuccess = async (credentialResponse) => {
+        setLoading(true);
+        setError('');
+        try {
+            await googleLogin(credentialResponse.credential);
+            navigate('/dashboard');
+        } catch (err) {
+            setError(err.message || 'Google login failed');
         } finally {
             setLoading(false);
         }
@@ -104,21 +118,16 @@ export default function Login() {
                         <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10"></div></div>
                         <div className="relative flex justify-center text-xs"><span className="px-3 text-gray-500 bg-[#0f1420]">or continue with</span></div>
                     </div>
-                    <div className="mt-4 grid grid-cols-3 gap-3">
-                        {[
-                            { name: 'Google', icon: '🔵' },
-                            { name: 'Apple', icon: '🍎' },
-                            { name: 'Facebook', icon: '📘' },
-                        ].map((provider) => (
-                            <button
-                                key={provider.name}
-                                className="btn-glass py-2.5 text-center text-sm flex items-center justify-center gap-2"
-                                onClick={() => alert(`${provider.name} OAuth — requires API keys`)}
-                            >
-                                <span>{provider.icon}</span>
-                                <span className="hidden sm:inline">{provider.name}</span>
-                            </button>
-                        ))}
+                    <div className="mt-4 flex justify-center">
+                        <GoogleLogin
+                            onSuccess={handleGoogleSuccess}
+                            onError={() => setError('Google sign-in failed')}
+                            theme="filled_black"
+                            size="large"
+                            width="100%"
+                            text="continue_with"
+                            shape="pill"
+                        />
                     </div>
                 </div>
 

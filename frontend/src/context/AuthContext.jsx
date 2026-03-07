@@ -101,6 +101,23 @@ export function AuthProvider({ children }) {
         setUser(null);
     }, []);
 
+    const googleLogin = useCallback(async (credential) => {
+        setError(null);
+        const res = await fetch(`${API}/auth/google`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ credential })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Google login failed');
+
+        localStorage.setItem('fittrack_token', data.accessToken);
+        localStorage.setItem('fittrack_refresh', data.refreshToken);
+        localStorage.setItem('fittrack_user', JSON.stringify(data.user));
+        setUser(data.user);
+        return data;
+    }, []);
+
     // API helper with auto-refresh
     const apiFetch = useCallback(async (url, options = {}) => {
         let token = localStorage.getItem('fittrack_token');
@@ -132,7 +149,7 @@ export function AuthProvider({ children }) {
     }, [refreshAccessToken, logout]);
 
     return (
-        <AuthContext.Provider value={{ user, loading, error, login, register, logout, apiFetch }}>
+        <AuthContext.Provider value={{ user, loading, error, login, register, logout, googleLogin, apiFetch }}>
             {children}
         </AuthContext.Provider>
     );

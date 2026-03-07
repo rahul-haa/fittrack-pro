@@ -189,4 +189,59 @@ router.post('/logout', (req, res) => {
     res.json({ message: 'Logged out successfully.' });
 });
 
+/**
+ * POST /api/auth/google
+ * Google OAuth — verify Google ID token & auto-register/login
+ */
+router.post('/google', async (req, res) => {
+    try {
+        const { credential } = req.body;
+        if (!credential) {
+            return res.status(400).json({ error: 'Google credential required.' });
+        }
+
+        const { OAuth2Client } = require('google-auth-library');
+        const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+        const ticket = await client.verifyIdToken({
+            idToken: credential,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        const payload = ticket.getPayload();
+        const { email, name, picture, sub: googleId } = payload;
+
+        const db = getDb();
+        let user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+
+        if (!user) {
+            // Auto-register new Google user
+            const userId = uuidv4();
+            const randomPassword = await bcrypt.hash(uuidv4(), 12);
+            db.prepare(`
+                INSERT INTO users (id, email, password_hash, name, avatar_url, oauth_provider, oauth_id)
+                VALUES (?, ?, ?, ?, ?, 'google', ?)
+            `).run(userId, email, randomPassword, name, picture || null, googleId);
+
+            // Auto-create defaults
+            db.prepare('INSERT INTO water_settings (user_id, daily_goal_ml) VALUES (?, 2500)').run(userId);
+            db.prepare('INSERT INTO notification_preferences (user_id) VALUES (?)').run(userId);
+
+            user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+        }
+
+        const tokens = generateTokens(user);
+        const refreshExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+        db.prepare('INSERT INTO refresh_tokens (id, user_id, token, expires_at) VALUES (?, ?, ?, ?)').run(uuidv4(), user.id, tokens.refreshToken, refreshExpiry);
+
+        res.json({
+            message: 'Google login successful',
+            user: { id: user.id, email: user.email, name: user.name, role: user.role, avatar_url: user.avatar_url },
+            ...tokens
+        });
+    } catch (err) {
+        console.error('Google auth error:', err);
+        res.status(401).json({ error: 'Google authentication failed.' });
+    }
+});
+
 module.exports = router;

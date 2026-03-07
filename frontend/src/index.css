@@ -1,0 +1,336 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Theme Variables ──────────────────────────────────── */
+:root,
+.dark {
+    --bg-primary: #0A0E1A;
+    --bg-secondary: #1A0A2E;
+    --bg-tertiary: #0D1117;
+    --color-neon: #00FF88;
+    --color-electric: #00C8FF;
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --glass-bg: rgba(255, 255, 255, 0.07);
+    --glass-bg-end: rgba(255, 255, 255, 0.02);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-hover-border: rgba(0, 255, 136, 0.3);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    --input-bg: rgba(255, 255, 255, 0.05);
+    --scrollbar-thumb: rgba(0, 255, 136, 0.3);
+    --body-gradient: linear-gradient(135deg, #0A0E1A 0%, #1A0A2E 50%, #0D1117 100%);
+    --card-text: #ffffff;
+}
+
+.light {
+    --bg-primary: #f0f4f8;
+    --bg-secondary: #e2e8f0;
+    --bg-tertiary: #ffffff;
+    --color-neon: #059669;
+    --color-electric: #0284c7;
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-bg-end: rgba(255, 255, 255, 0.5);
+    --glass-border: rgba(0, 0, 0, 0.08);
+    --glass-hover-border: rgba(5, 150, 105, 0.4);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    --input-bg: rgba(0, 0, 0, 0.04);
+    --scrollbar-thumb: rgba(5, 150, 105, 0.4);
+    --body-gradient: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 50%, #ffffff 100%);
+    --card-text: #1e293b;
+}
+
+/* ─── Global Styles ────────────────────────────────────── */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--body-gradient);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.4s ease, color 0.3s ease;
+}
+
+#root {
+    min-height: 100vh;
+}
+
+/* ─── Scrollbar ────────────────────────────────────────── */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-neon);
+}
+
+/* ─── Glass Card ───────────────────────────────────────── */
+@layer components {
+    .glass-card {
+        @apply relative overflow-hidden rounded-2xl border;
+        border-color: var(--glass-border);
+        background: linear-gradient(135deg, var(--glass-bg) 0%, var(--glass-bg-end) 100%);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        box-shadow: var(--glass-shadow), var(--glass-inset);
+        transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .glass-card-hover {
+        @apply glass-card transition-all duration-300;
+    }
+
+    .glass-card-hover:hover {
+        border-color: var(--glass-hover-border);
+        box-shadow: var(--glass-shadow), 0 0 20px rgba(0, 255, 136, 0.12), var(--glass-inset);
+        transform: translateY(-2px);
+    }
+
+    .btn-neon {
+        @apply px-6 py-3 rounded-xl font-semibold transition-all duration-300;
+        background: linear-gradient(135deg, var(--color-neon), var(--color-electric));
+        box-shadow: 0 0 20px rgba(0, 255, 136, 0.25);
+        color: #000;
+    }
+
+    .btn-neon:hover {
+        box-shadow: 0 0 30px rgba(0, 255, 136, 0.45);
+        transform: translateY(-1px);
+    }
+
+    .btn-neon:active {
+        transform: translateY(0);
+    }
+
+    .btn-glass {
+        @apply px-6 py-3 rounded-xl font-semibold transition-all duration-300 border;
+        border-color: var(--glass-border);
+        background: var(--input-bg);
+        backdrop-filter: blur(10px);
+        color: var(--text-primary);
+    }
+
+    .btn-glass:hover {
+        background: var(--glass-bg);
+        border-color: var(--glass-hover-border);
+    }
+
+    .input-glass {
+        @apply w-full px-4 py-3 rounded-xl border outline-none transition-all duration-300;
+        border-color: var(--glass-border);
+        background: var(--input-bg);
+        backdrop-filter: blur(10px);
+        color: var(--text-primary);
+    }
+
+    .input-glass::placeholder {
+        color: var(--text-muted);
+    }
+
+    .input-glass:focus {
+        border-color: var(--color-neon);
+        box-shadow: 0 0 20px rgba(0, 255, 136, 0.12);
+    }
+
+    .text-gradient {
+        @apply bg-clip-text text-transparent font-bold;
+        background-image: linear-gradient(135deg, var(--color-neon), var(--color-electric));
+    }
+
+    .glow-neon {
+        text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+    }
+
+    .glow-electric {
+        text-shadow: 0 0 20px rgba(0, 200, 255, 0.5);
+    }
+
+    /* Theme-aware text helpers */
+    .theme-text {
+        color: var(--text-primary);
+    }
+
+    .theme-text-secondary {
+        color: var(--text-secondary);
+    }
+
+    .theme-text-muted {
+        color: var(--text-muted);
+    }
+
+    .theme-card-text {
+        color: var(--card-text);
+    }
+}
+
+/* ─── Light mode overrides ─────────────────────────────── */
+.light .text-white {
+    color: var(--card-text);
+}
+
+.light .text-gray-400 {
+    color: var(--text-secondary);
+}
+
+.light .text-gray-500 {
+    color: var(--text-muted);
+}
+
+.light .text-gray-600 {
+    color: #94a3b8;
+}
+
+.light .text-gray-300 {
+    color: var(--text-secondary);
+}
+
+.light .text-neon {
+    color: var(--color-neon);
+}
+
+.light .text-electric {
+    color: var(--color-electric);
+}
+
+.light .bg-neon\/10 {
+    background-color: rgba(5, 150, 105, 0.1);
+}
+
+.light .bg-neon\/5 {
+    background-color: rgba(5, 150, 105, 0.05);
+}
+
+.light .bg-electric\/10 {
+    background-color: rgba(2, 132, 199, 0.1);
+}
+
+.light .border-neon\/20 {
+    border-color: rgba(5, 150, 105, 0.2);
+}
+
+.light .border-neon\/30 {
+    border-color: rgba(5, 150, 105, 0.3);
+}
+
+.light .border-neon\/50 {
+    border-color: rgba(5, 150, 105, 0.5);
+}
+
+.light .bg-white\/5 {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+.light .bg-white\/10 {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.light .border-white\/5 {
+    border-color: rgba(0, 0, 0, 0.05);
+}
+
+.light .border-white\/10 {
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+.light .bg-black\/50 {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.light .bg-black\/60 {
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.light .shadow-neon {
+    box-shadow: 0 0 20px rgba(5, 150, 105, 0.2);
+}
+
+.light select option {
+    background: #fff;
+    color: #1e293b;
+}
+
+/* ─── Water Wave Animation ─────────────────────────────── */
+@keyframes waterWave {
+    0% {
+        transform: translateX(0) translateY(0);
+    }
+
+    25% {
+        transform: translateX(-5%) translateY(-3px);
+    }
+
+    50% {
+        transform: translateX(-10%) translateY(0);
+    }
+
+    75% {
+        transform: translateX(-5%) translateY(3px);
+    }
+
+    100% {
+        transform: translateX(0) translateY(0);
+    }
+}
+
+.water-wave {
+    animation: waterWave 3s ease-in-out infinite;
+}
+
+.water-wave-2 {
+    animation: waterWave 4s ease-in-out infinite reverse;
+}
+
+/* ─── Progress Ring ────────────────────────────────────── */
+.progress-ring-circle {
+    transition: stroke-dashoffset 1s ease-in-out;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+}
+
+/* ─── Glow Effects ─────────────────────────────────────── */
+@keyframes bgPulse {
+
+    0%,
+    100% {
+        opacity: 0.3;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+}
+
+.bg-glow {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+    animation: bgPulse 6s ease-in-out infinite;
+}
+
+.light .bg-glow {
+    opacity: 0.15;
+    filter: blur(100px);
+}

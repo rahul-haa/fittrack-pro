@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+.env
+
+# Build artifacts (frontend dist is in backend/public which we DO want to deploy)
+frontend/dist/
+
+# Database (will be created on server)
+backend/*.db
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log

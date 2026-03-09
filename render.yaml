@@ -16,3 +16,7 @@ services:
         value: 15m
       - key: JWT_REFRESH_EXPIRY
         value: 7d
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: FRONTEND_URL
+        sync: false

@@ -17,8 +17,11 @@ const PORT = process.env.PORT || 5000;
 
 // ─── Middleware ────────────────────────────────────────────
 const isProduction = process.env.NODE_ENV === 'production';
+const allowedOrigins = isProduction
+    ? [process.env.FRONTEND_URL].filter(Boolean)
+    : ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'];
 app.use(cors({
-    origin: isProduction ? true : ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'],
+    origin: allowedOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']

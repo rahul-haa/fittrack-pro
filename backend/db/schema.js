@@ -10,14 +10,14 @@ const path = require('path');
 const DB_PATH = path.join(__dirname, 'fitness.db');
 
 function initializeDatabase() {
-    const db = new Database(DB_PATH);
+  const db = new Database(DB_PATH);
 
-    // Enable WAL mode for better concurrent performance
-    db.pragma('journal_mode = WAL');
-    db.pragma('foreign_keys = ON');
+  // Enable WAL mode for better concurrent performance
+  db.pragma('journal_mode = WAL');
+  db.pragma('foreign_keys = ON');
 
-    // ─── Users ───────────────────────────────────────────────
-    db.exec(`
+  // ─── Users ───────────────────────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
       email TEXT UNIQUE NOT NULL,
@@ -31,6 +31,8 @@ function initializeDatabase() {
       fitness_level TEXT CHECK(fitness_level IN ('beginner', 'intermediate', 'advanced')) DEFAULT 'beginner',
       role TEXT CHECK(role IN ('user', 'trainer', 'admin')) DEFAULT 'user',
       subscription TEXT CHECK(subscription IN ('free', 'pro', 'elite')) DEFAULT 'free',
+      oauth_provider TEXT DEFAULT NULL,
+      oauth_id TEXT DEFAULT NULL,
       xp_points INTEGER DEFAULT 0,
       streak_count INTEGER DEFAULT 0,
       streak_freeze_available INTEGER DEFAULT 1,
@@ -41,8 +43,8 @@ function initializeDatabase() {
     )
   `);
 
-    // ─── Refresh Tokens ─────────────────────────────────────
-    db.exec(`
+  // ─── Refresh Tokens ─────────────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS refresh_tokens (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -52,8 +54,8 @@ function initializeDatabase() {
     )
   `);
 
-    // ─── Goals ──────────────────────────────────────────────
-    db.exec(`
+  // ─── Goals ──────────────────────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS goals (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -69,8 +71,8 @@ function initializeDatabase() {
     )
   `);
 
-    // ─── Water Intake Logs ──────────────────────────────────
-    db.exec(`
+  // ─── Water Intake Logs ──────────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS water_logs (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -79,8 +81,8 @@ function initializeDatabase() {
     )
   `);
 
-    // ─── Water Settings ─────────────────────────────────────
-    db.exec(`
+  // ─── Water Settings ─────────────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS water_settings (
       user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
       daily_goal_ml REAL DEFAULT 2500,
@@ -91,8 +93,8 @@ function initializeDatabase() {
     )
   `);
 
-    // ─── Exercises (Library) ────────────────────────────────
-    db.exec(`
+  // ─── Exercises (Library) ────────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS exercises (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
@@ -113,8 +115,8 @@ function initializeDatabase() {
     )
   `);
 
-    // ─── Workout Plans ──────────────────────────────────────
-    db.exec(`
+  // ─── Workout Plans ──────────────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS workout_plans (
       id TEXT PRIMARY KEY,
       user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
@@ -127,8 +129,8 @@ function initializeDatabase() {
     )
   `);
 
-    // ─── Workout Plan Exercises ─────────────────────────────
-    db.exec(`
+  // ─── Workout Plan Exercises ─────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS workout_plan_exercises (
       id TEXT PRIMARY KEY,
       plan_id TEXT NOT NULL REFERENCES workout_plans(id) ON DELETE CASCADE,
@@ -141,8 +143,8 @@ function initializeDatabase() {
     )
   `);
 
-    // ─── Workout Logs ──────────────────────────────────────
-    db.exec(`
+  // ─── Workout Logs ──────────────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS workout_logs (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -159,8 +161,8 @@ function initializeDatabase() {
     )
   `);
 
-    // ─── Nutrition / Food Items ─────────────────────────────
-    db.exec(`
+  // ─── Nutrition / Food Items ─────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS food_items (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
@@ -177,8 +179,8 @@ function initializeDatabase() {
     )
   `);
 
-    // ─── Nutrition Logs ─────────────────────────────────────
-    db.exec(`
+  // ─── Nutrition Logs ─────────────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS nutrition_logs (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -194,8 +196,8 @@ function initializeDatabase() {
     )
   `);
 
-    // ─── Badges ─────────────────────────────────────────────
-    db.exec(`
+  // ─── Badges ─────────────────────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS badges (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
@@ -209,8 +211,8 @@ function initializeDatabase() {
     )
   `);
 
-    // ─── User Badges ────────────────────────────────────────
-    db.exec(`
+  // ─── User Badges ────────────────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS user_badges (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -220,8 +222,8 @@ function initializeDatabase() {
     )
   `);
 
-    // ─── Social Posts ───────────────────────────────────────
-    db.exec(`
+  // ─── Social Posts ───────────────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS social_posts (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -234,8 +236,8 @@ function initializeDatabase() {
     )
   `);
 
-    // ─── Social Comments ───────────────────────────────────
-    db.exec(`
+  // ─── Social Comments ───────────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS social_comments (
       id TEXT PRIMARY KEY,
       post_id TEXT NOT NULL REFERENCES social_posts(id) ON DELETE CASCADE,
@@ -245,8 +247,8 @@ function initializeDatabase() {
     )
   `);
 
-    // ─── Social Likes ──────────────────────────────────────
-    db.exec(`
+  // ─── Social Likes ──────────────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS social_likes (
       id TEXT PRIMARY KEY,
       post_id TEXT NOT NULL REFERENCES social_posts(id) ON DELETE CASCADE,
@@ -256,8 +258,8 @@ function initializeDatabase() {
     )
   `);
 
-    // ─── Followers ─────────────────────────────────────────
-    db.exec(`
+  // ─── Followers ─────────────────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS followers (
       id TEXT PRIMARY KEY,
       follower_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -267,8 +269,8 @@ function initializeDatabase() {
     )
   `);
 
-    // ─── Notifications ──────────────────────────────────────
-    db.exec(`
+  // ─── Notifications ──────────────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS notifications (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -281,8 +283,8 @@ function initializeDatabase() {
     )
   `);
 
-    // ─── Notification Preferences ───────────────────────────
-    db.exec(`
+  // ─── Notification Preferences ───────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS notification_preferences (
       user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
       workout_reminders INTEGER DEFAULT 1,
@@ -297,8 +299,8 @@ function initializeDatabase() {
     )
   `);
 
-    // ─── Community Challenges ───────────────────────────────
-    db.exec(`
+  // ─── Community Challenges ───────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS challenges (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
@@ -312,8 +314,8 @@ function initializeDatabase() {
     )
   `);
 
-    // ─── Challenge Participants ─────────────────────────────
-    db.exec(`
+  // ─── Challenge Participants ─────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS challenge_participants (
       id TEXT PRIMARY KEY,
       challenge_id TEXT NOT NULL REFERENCES challenges(id) ON DELETE CASCADE,
@@ -324,16 +326,16 @@ function initializeDatabase() {
     )
   `);
 
-    return db;
+  return db;
 }
 
 // Singleton pattern — reuse the same connection
 let dbInstance = null;
 function getDb() {
-    if (!dbInstance) {
-        dbInstance = initializeDatabase();
-    }
-    return dbInstance;
+  if (!dbInstance) {
+    dbInstance = initializeDatabase();
+  }
+  return dbInstance;
 }
 
 module.exports = { getDb, initializeDatabase };

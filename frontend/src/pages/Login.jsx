@@ -8,8 +8,8 @@ import { useAuth } from '../context/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
 
 export default function Login() {
-    const [email, setEmail] = useState('demo@fittrack.com');
-    const [password, setPassword] = useState('demo1234');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const { login, googleLogin } = useAuth();

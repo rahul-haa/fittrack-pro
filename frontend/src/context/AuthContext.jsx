@@ -121,13 +121,15 @@ export function AuthProvider({ children }) {
 
     // API helper with auto-refresh
     const apiFetch = useCallback(async (url, options = {}) => {
+        // Prepend backend URL for /api routes (needed in production where there's no Vite proxy)
+        const fullUrl = url.startsWith('/api') ? `${API_BASE}${url}` : url;
         let token = localStorage.getItem('fittrack_token');
         const headers = { ...options.headers, Authorization: `Bearer ${token}` };
         if (options.body && typeof options.body === 'string') {
             headers['Content-Type'] = 'application/json';
         }
 
-        let res = await fetch(url, { ...options, headers });
+        let res = await fetch(fullUrl, { ...options, headers });
 
         if (res.status === 401) {
             const refreshToken = localStorage.getItem('fittrack_refresh');
@@ -135,7 +137,7 @@ export function AuthProvider({ children }) {
                 try {
                     token = await refreshAccessToken(refreshToken);
                     headers.Authorization = `Bearer ${token}`;
-                    res = await fetch(url, { ...options, headers });
+                    res = await fetch(fullUrl, { ...options, headers });
                 } catch {
                     logout();
                     throw new Error('Session expired');
